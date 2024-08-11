@@ -1,0 +1,19 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: keda-scaledobject
+  namespace: kafka
+spec:
+  scaleTargetRef:
+    name: consumer
+  minReplicaCount: 1
+  maxReplicaCount: 4
+  cooldownPeriod: 100  # Periodo de cooldown para reducir replicas
+  pollingInterval: 30  # Intervalo de polling para verificar métricas
+  triggers:
+  - type: kafka
+    metadata:
+      bootstrapServers: test-kafka-bootstrap.kafka.svc.cluster.local:9092
+      consumerGroup: test-group
+      topic: topic
+      lagThreshold: "5"

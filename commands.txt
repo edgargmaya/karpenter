@@ -1,0 +1,53 @@
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+kubectl create ns monitoring && helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring -f kafka/prometheus-values.yaml
+helm uninstall prometheus-stack -n monitoring
+
+
+kubectl port-forward svc/prometheus-operated -n monitoring 9090:9090
+kubectl port-forward svc/prometheus-stack-grafana -n monitoring 8080:80
+
+
+kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/ecr/"
+
+
+helm repo add strimzi https://strimzi.io/charts/
+helm repo update
+kubectl create ns kafka && helm install strimzi-kafka-operator strimzi/strimzi-kafka-operator --namespace kafka
+
+
+helm install kafka-exporter prometheus-community/prometheus-kafka-exporter -n kafka -f kafka/exporter.yaml
+
+
+kubectl apply -f kafka/kafka.yaml
+kubectl apply -f kafka/topic.yaml
+kubectl apply -f kafka/service-monitor.yaml
+
+
+kubectl run kafka-cli --image=wurstmeister/kafka:latest --restart=Never -n kafka -- sleep infinity
+kubectl exec -it kafka-cli -n kafka -- /bin/bash
+
+kafka-console-producer.sh --broker-list test-kafka-bootstrap:9092 --topic topic
+kafka-console-consumer.sh --bootstrap-server test-kafka-bootstrap:9092 --topic topic --from-beginning
+kafka-console-consumer.sh --bootstrap-server test-kafka-bootstrap:9092 --topic topic --group my-consumer-group
+kafka-console-consumer.sh --bootstrap-server test-kafka-bootstrap:9092 --topic topic --group my-consumer-group
+
+
+helm repo add kminion https://raw.githubusercontent.com/cloudhut/kminion/master/charts/archives
+helm repo update
+helm install -f values.yaml kminion kminion/kminion
+
+helm show values redpanda-data/kminion
+
+
+helm repo add redpanda-data https://charts.redpanda.com
+helm repo update
+helm install kminion redpanda-data/kminion --version 0.14.0 -n kafka -f kafka/kminion-values.yaml
+helm uninstall kminion -n kafka
+
+
+kubectl exec -it $(kubectl -n kafka get pods -l app=consumidor -o jsonpath="{.items[0].metadata.name}") -n kafka -- /bin/bash
+
+
+kubectl delete -f https://github.com/kedacore/keda/releases/download/v2.6.0/keda-2.6.0.yaml
+kubectl apply -f https://github.com/kedacore/keda/releases/download/v2.14.0/keda-2.14.0.yaml

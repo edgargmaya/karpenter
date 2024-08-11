@@ -1,0 +1,28 @@
+# Terraform files
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+override.tf
+override.tf.json
+terraform.tfvars
+terraform.tfvars.json
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate.backup
+terraform.tfstate.backup.*
+*.tfplan
+*.tfplan.*
+
+# Local environment files
+.terraformrc
+.terraformrc.json
+.terraform.d/
+
+# Sensitive files
+*.pem
+*.key
+*.p12
+*.cer
+*.der

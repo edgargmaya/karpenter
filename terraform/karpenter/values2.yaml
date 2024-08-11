@@ -1,0 +1,13 @@
+# values.yaml
+controller:
+  serviceAccount:
+    name: karpenter  # Usar el Service Account creado por Terraform
+
+  clusterName: "edgar-test"  # Nombre de tu cluster EKS
+  clusterEndpoint: "https://3EECDEDBCF8CB5D79F7E269954D1BCFB.gr7.us-east-1.eks.amazonaws.com"  # Endpoint de la API de Kubernetes
+
+  aws:
+    defaultInstanceProfile: "<your-instance-profile>"  # Perfil de instancia asociado
+    enablePodENI: false  # Configura esto según tus necesidades
+
+replicas: 1
